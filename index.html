@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Assistant</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #263248;
+      --border: #334155;
+      --accent: #3b82f6;
+      --accent2: #6366f1;
+      --warn: #f59e0b;
+      --ok: #22c55e;
+      --danger: #ef4444;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --radius: 16px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 72px;
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      gap: 8px;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+    .nav-item {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      transition: background .2s;
+      position: relative;
+    }
+    .nav-item:hover { background: var(--surface2); }
+    .nav-item.active { background: var(--accent); }
+    .nav-item .tooltip {
+      position: absolute; left: 60px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transition: opacity .15s;
+    }
+    .nav-item:hover .tooltip { opacity: 1; }
+
+    /* MAIN */
+    .main {
+      margin-left: 72px;
+      padding: 28px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .header h1 { font-size: 24px; font-weight: 700; }
+    .header p { color: var(--muted); font-size: 14px; margin-top: 2px; }
+    .weather-badge {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: var(--radius);
+    }
+    .weather-badge .temp { font-size: 26px; font-weight: 700; }
+    .weather-badge .details { font-size: 13px; color: var(--muted); }
+
+    /* GRID */
+    .grid { display: grid; gap: 20px; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* DEVICE TILE */
+    .device-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      user-select: none;
+    }
+    .device-tile.on {
+      border-color: var(--accent);
+      background: rgba(59,130,246,.07);
+    }
+    .device-tile .icon { font-size: 30px; margin-bottom: 10px; }
+    .device-tile .label { font-size: 14px; font-weight: 600; }
+    .device-tile .status { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .device-tile.on .status { color: var(--accent); }
+
+    /* TOGGLE */
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      display: inline-block;
+    }
+    .toggle input { display: none; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--border);
+      border-radius: 99px;
+      transition: background .2s;
+      cursor: pointer;
+    }
+    .toggle input:checked ~ .toggle-track { background: var(--accent); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform .2s;
+      pointer-events: none;
+    }
+    .toggle input:checked ~ .toggle-track .toggle-thumb { transform: translateX(20px); }
+
+    /* SLIDER */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%; height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* THERMOSTAT */
+    .thermo-ring {
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      border: 8px solid var(--border);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+      position: relative;
+    }
+    .thermo-ring.heating { border-color: #f97316; }
+    .thermo-ring.cooling { border-color: #38bdf8; }
+    .thermo-temp { font-size: 36px; font-weight: 700; }
+    .thermo-label { font-size: 12px; color: var(--muted); }
+    .thermo-btns { display: flex; gap: 12px; justify-content: center; }
+    .thermo-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .thermo-btn:hover { background: var(--border); }
+
+    /* SCENE BUTTONS */
+    .scene-btn {
+      padding: 12px 0;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color .2s, background .2s;
+      color: var(--text);
+    }
+    .scene-btn.active {
+      border-color: var(--accent2);
+      background: rgba(99,102,241,.12);
+      color: var(--accent2);
+    }
+    .scene-btn .scene-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+
+    /* SECURITY */
+    .security-status {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .security-status.armed { background: rgba(239,68,68,.1); border: 1px solid var(--danger); }
+    .security-status.disarmed { background: rgba(34,197,94,.1); border: 1px solid var(--ok); }
+    .security-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .armed .security-dot { background: var(--danger); animation: pulse 1.5s infinite; }
+    .disarmed .security-dot { background: var(--ok); }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: .4; }
+    }
+    .security-label { font-weight: 600; font-size: 14px; }
+    .arm-btn {
+      margin-left: auto;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .arm-btn:hover { opacity: .85; }
+    .arm-btn.arm { background: var(--danger); color: white; }
+    .arm-btn.disarm { background: var(--ok); color: white; }
+
+    /* CAMERA */
+    .camera-feed {
+      background: #0a0f1e;
+      border-radius: 10px;
+      height: 110px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .camera-feed::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,.015) 2px,
+        rgba(255,255,255,.015) 4px
+      );
+    }
+    .cam-live {
+      position: absolute; top: 8px; right: 8px;
+      background: var(--danger);
+      color: white; font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 4px;
+      letter-spacing: .05em;
+    }
+    .cam-label {
+      font-size: 12px; color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ENERGY */
+    .energy-bar-wrap { margin-bottom: 12px; }
+    .energy-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 13px; margin-bottom: 5px;
+    }
+    .energy-bar-label span:last-child { color: var(--muted); }
+    .energy-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .energy-bar-fill {
+      height: 100%; border-radius: 4px;
+      transition: width 1s ease;
+    }
+
+    /* ROOM SELECTOR */
+    .room-tabs {
+      display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .room-tab {
+      padding: 7px 16px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: all .2s;
+    }
+    .room-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* NOTIFICATION DOT */
+    .notif-dot {
+      position: absolute; top: 8px; right: 8px;
+      width: 8px; height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .main { padding: 16px; margin-left: 60px; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .sidebar { width: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">🏠</div>
+  <div class="nav-item active" onclick="showView('dashboard')">
+    📊<span class="tooltip">Dashboard</span>
+  </div>
+  <div class="nav-item" onclick="showView('devices')">
+    💡<span class="tooltip">Devices</span>
+  </div>
+  <div class="nav-item" onclick="showView('security')">
+    🔒<span class="tooltip">Security</span>
+  </div>
+  <div class="nav-item" onclick="showView('energy')">
+    ⚡<span class="tooltip">Energy</span>
+  </div>
+  <div class="nav-item" onclick="showView('scenes')">
+    🎭<span class="tooltip">Scenes</span>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1 id="view-title">Dashboard</h1>
+      <p id="view-sub">Good evening, welcome home</p>
+    </div>
+    <div class="weather-badge">
+      <span style="font-size:28px" id="weather-icon">⛅</span>
+      <div>
+        <div class="temp" id="weather-temp">18°C</div>
+        <div class="details" id="weather-desc">Partly cloudy · Oslo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEWS -->
+
+  <!-- DASHBOARD VIEW -->
+  <div id="view-dashboard">
+    <!-- Quick stats -->
+    <div class="grid grid-4" style="margin-bottom:20px">
+      <div class="card" style="text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">💡</div>
+        <div style="font-size:22px;font-weight:700" id="stat-lights">5</div>
+        <div style="font-size:12px;color:var(--muted)">Lights On</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">🌡️</div>
+        <div style="font-size:22px;font-weight:700" id="stat-temp">21°C</div>
+        <div style="font-size:12px;color:var(--muted)">Indoor Temp</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">⚡</div>
+        <div style="font-size:22px;font-weight:700" id="stat-power">1.4 kW</div>
+        <div style="font-size:12px;color:var(--muted)">Power Usage</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">🔒</div>
+        <div style="font-size:22px;font-weight:700" id="stat-security">Disarmed</div>
+        <div style="font-size:12px;color:var(--muted)">Security</div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:20px">
+      <!-- Rooms -->
+      <div class="card">
+        <div class="card-title">Rooms</div>
+        <div class="room-tabs">
+          <button class="room-tab active" onclick="selectRoom(this,'living')">Living Room</button>
+          <button class="room-tab" onclick="selectRoom(this,'bedroom')">Bedroom</button>
+          <button class="room-tab" onclick="selectRoom(this,'kitchen')">Kitchen</button>
+          <button class="room-tab" onclick="selectRoom(this,'bathroom')">Bathroom</button>
+        </div>
+        <div id="room-devices" class="grid grid-2"></div>
+      </div>
+
+      <!-- Thermostat -->
+      <div class="card">
+        <div class="card-title">Thermostat</div>
+        <div class="thermo-ring" id="thermo-ring">
+          <div class="thermo-temp" id="thermo-temp">21°C</div>
+          <div class="thermo-label" id="thermo-mode">Heating</div>
+        </div>
+        <div class="thermo-btns">
+          <button class="thermo-btn" onclick="adjustTemp(-1)">−</button>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+            <div style="font-size:12px;color:var(--muted)">Target</div>
+            <div style="font-size:16px;font-weight:700" id="thermo-target">22°C</div>
+          </div>
+          <button class="thermo-btn" onclick="adjustTemp(1)">+</button>
+        </div>
+        <div style="margin-top:14px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Mode</div>
+          <div style="display:flex;gap:8px">
+            <button class="scene-btn" id="mode-heat" onclick="setMode('heat')" style="flex:1;padding:8px">🔥 Heat</button>
+            <button class="scene-btn" id="mode-cool" onclick="setMode('cool')" style="flex:1;padding:8px">❄️ Cool</button>
+            <button class="scene-btn" id="mode-off" onclick="setMode('off')" style="flex:1;padding:8px">⏹ Off</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenes quick access -->
+    <div class="card">
+      <div class="card-title">Quick Scenes</div>
+      <div class="grid grid-4">
+        <button class="scene-btn" onclick="activateScene('morning')"><span class="scene-icon">🌅</span>Morning</button>
+        <button class="scene-btn" onclick="activateScene('day')"><span class="scene-icon">☀️</span>Day</button>
+        <button class="scene-btn" onclick="activateScene('evening')"><span class="scene-icon">🌆</span>Evening</button>
+        <button class="scene-btn active" onclick="activateScene('night')"><span class="scene-icon">🌙</span>Night</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEVICES VIEW -->
+  <div id="view-devices" style="display:none">
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">All Devices</div>
+      <div class="grid grid-4" id="all-devices"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Brightness & Settings</div>
+      <div id="device-settings"></div>
+    </div>
+  </div>
+
+  <!-- SECURITY VIEW -->
+  <div id="view-security" style="display:none">
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Alarm System</div>
+      <div class="security-status disarmed" id="alarm-status">
+        <div class="security-dot"></div>
+        <div>
+          <div class="security-label" id="alarm-label">System Disarmed</div>
+          <div style="font-size:12px;color:var(--muted)" id="alarm-sub">All doors and windows secured</div>
+        </div>
+        <button class="arm-btn arm" id="alarm-btn" onclick="toggleAlarm()">Arm</button>
+      </div>
+    </div>
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-title">Front Door</div>
+        <div class="camera-feed"><span>📹</span><span class="cam-live">LIVE</span></div>
+        <div class="cam-label">Camera · Online</div>
+        <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px">Lock</span>
+          <label class="toggle">
+            <input type="checkbox" checked onchange="toggleLock('front',this)">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Back Door</div>
+        <div class="camera-feed"><span>📹</span><span class="cam-live">LIVE</span></div>
+        <div class="cam-label">Camera · Online</div>
+        <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px">Lock</span>
+          <label class="toggle">
+            <input type="checkbox" checked onchange="toggleLock('back',this)">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Garage</div>
+        <div class="camera-feed"><span>📹</span></div>
+        <div class="cam-label">Camera · Offline</div>
+        <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px">Door</span>
+          <label class="toggle">
+            <input type="checkbox" onchange="toggleLock('garage',this)">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">Sensors</div>
+      <div class="grid grid-4" id="sensors"></div>
+    </div>
+  </div>
+
+  <!-- ENERGY VIEW -->
+  <div id="view-energy" style="display:none">
+    <div class="grid grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-title">Live Usage</div>
+        <div style="font-size:48px;font-weight:800;margin-bottom:4px" id="live-power">1.4 <span style="font-size:22px;font-weight:400;color:var(--muted)">kW</span></div>
+        <div style="font-size:13px;color:var(--muted)">Current draw</div>
+        <div style="margin-top:16px">
+          <div class="card-title">Top Consumers</div>
+          <div id="energy-consumers"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Today's Usage</div>
+        <div style="font-size:48px;font-weight:800;margin-bottom:4px">8.3 <span style="font-size:22px;font-weight:400;color:var(--muted)">kWh</span></div>
+        <div style="font-size:13px;color:var(--muted)">↓ 12% vs yesterday</div>
+        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:20px;font-weight:700;color:var(--ok)">4.1</div>
+            <div style="font-size:11px;color:var(--muted)">kWh Solar</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:20px;font-weight:700;color:var(--warn)">4.2</div>
+            <div style="font-size:11px;color:var(--muted)">kWh Grid</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Usage by Room</div>
+      <div id="room-energy"></div>
+    </div>
+  </div>
+
+  <!-- SCENES VIEW -->
+  <div id="view-scenes" style="display:none">
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Scenes</div>
+      <div class="grid grid-4" id="scenes-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Automations</div>
+      <div id="automations-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+const state = {
+  thermostatTarget: 22,
+  thermostatMode: 'heat',
+  alarm: false,
+  activeScene: 'night',
+  activeRoom: 'living',
+  devices: {
+    // living room
+    'living-main':   { name:'Main Light',  room:'living',  icon:'💡', on:true,  brightness:80 },
+    'living-lamp':   { name:'Floor Lamp',  room:'living',  icon:'🪔', on:true,  brightness:40 },
+    'living-tv':     { name:'Television',  room:'living',  icon:'📺', on:false, brightness:null },
+    'living-fan':    { name:'Ceiling Fan', room:'living',  icon:'🌀', on:false, brightness:null },
+    // bedroom
+    'bed-main':      { name:'Main Light',  room:'bedroom', icon:'💡', on:false, brightness:60 },
+    'bed-lamp':      { name:'Bedside Lamp',room:'bedroom', icon:'🪔', on:true,  brightness:20 },
+    'bed-ac':        { name:'AC Unit',     room:'bedroom', icon:'❄️', on:true,  brightness:null },
+    // kitchen
+    'kit-main':      { name:'Main Light',  room:'kitchen', icon:'💡', on:true,  brightness:100 },
+    'kit-oven':      { name:'Oven',        room:'kitchen', icon:'🍳', on:false, brightness:null },
+    'kit-dishwash':  { name:'Dishwasher',  room:'kitchen', icon:'🫧', on:false, brightness:null },
+    // bathroom
+    'bath-main':     { name:'Main Light',  room:'bathroom',icon:'💡', on:false, brightness:100 },
+    'bath-heat':     { name:'Floor Heat',  room:'bathroom',icon:'🌡️', on:true,  brightness:null },
+  }
+};
+
+const scenes = [
+  { id:'morning', icon:'🌅', name:'Morning', devices: { 'living-main':true, 'living-lamp':false, 'kit-main':true, 'bed-main':true } },
+  { id:'day',     icon:'☀️', name:'Day',     devices: { 'living-main':true, 'living-lamp':false, 'kit-main':true, 'bed-main':false } },
+  { id:'evening', icon:'🌆', name:'Evening', devices: { 'living-main':true, 'living-lamp':true,  'kit-main':true, 'bed-lamp':true  } },
+  { id:'night',   icon:'🌙', name:'Night',   devices: { 'living-main':false,'living-lamp':true,  'kit-main':false,'bed-lamp':true  } },
+  { id:'away',    icon:'🚗', name:'Away',    devices: { 'living-main':false,'living-lamp':false, 'kit-main':false,'bed-main':false } },
+  { id:'movie',   icon:'🎬', name:'Movie',   devices: { 'living-main':false,'living-lamp':true,  'living-tv':true } },
+  { id:'dinner',  icon:'🍽️', name:'Dinner',  devices: { 'kit-main':true, 'living-lamp':true } },
+  { id:'relax',   icon:'🧘', name:'Relax',   devices: { 'living-main':false,'living-lamp':true  } },
+];
+
+const automations = [
+  { icon:'🌅', name:'Wake Up', desc:'Weekdays at 07:00 – Morning scene + coffee maker', enabled:true },
+  { icon:'🌙', name:'Good Night', desc:'Daily at 23:00 – Night scene + lock all doors', enabled:true },
+  { icon:'🚗', name:'Leave Home', desc:'When last person leaves – Away mode + alarm arm', enabled:false },
+  { icon:'🏠', name:'Arrive Home', desc:'When first person arrives – Evening scene + disarm', enabled:true },
+  { icon:'🌡️', name:'Temperature Control', desc:'If temp < 19°C → start heating', enabled:true },
+  { icon:'☀️', name:'Sunrise Blinds', desc:'At sunrise – open roller blinds', enabled:false },
+];
+
+const sensors = [
+  { icon:'🚪', name:'Front Door', status:'Closed', ok:true },
+  { icon:'🪟', name:'Living Window', status:'Closed', ok:true },
+  { icon:'🚨', name:'Motion Hall', status:'No Motion', ok:true },
+  { icon:'💨', name:'CO₂ Living', status:'412 ppm', ok:true },
+  { icon:'💧', name:'Humidity Bath', status:'68%', ok:false },
+  { icon:'🔥', name:'Smoke Detector', status:'OK', ok:true },
+  { icon:'🌡️', name:'Outdoor Temp', status:'18°C', ok:true },
+  { icon:'☀️', name:'UV Index', status:'3 – Moderate', ok:true },
+];
+
+const energyConsumers = [
+  { name:'HVAC', pct:42, watts:580, color:'#f97316' },
+  { name:'Kitchen', pct:24, watts:340, color:'#3b82f6' },
+  { name:'Lighting', pct:15, watts:210, color:'#f59e0b' },
+  { name:'Appliances', pct:12, watts:168, color:'#a855f7' },
+  { name:'Other', pct:7,  watts:98,  color:'#94a3b8' },
+];
+
+const roomEnergy = [
+  { room:'Living Room', kwh:2.8, pct:34, color:'#3b82f6' },
+  { room:'Kitchen',     kwh:2.5, pct:30, color:'#f59e0b' },
+  { room:'Bedroom',     kwh:1.6, pct:19, color:'#a855f7' },
+  { room:'Bathroom',    kwh:0.9, pct:11, color:'#22c55e' },
+  { room:'Other',       kwh:0.5, pct:6,  color:'#94a3b8' },
+];
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function countLightsOn() {
+  return Object.values(state.devices).filter(d => d.icon === '💡' && d.on).length;
+}
+function updateStats() {
+  document.getElementById('stat-lights').textContent = countLightsOn();
+  document.getElementById('stat-temp').textContent = state.thermostatTarget + '°C';
+  document.getElementById('stat-security').textContent = state.alarm ? 'Armed' : 'Disarmed';
+  document.getElementById('live-power').innerHTML = '1.4 <span style="font-size:22px;font-weight:400;color:var(--muted)">kW</span>';
+}
+
+// ── VIEWS ──────────────────────────────────────────────────────────────────
+const viewTitles = {
+  dashboard: ['Dashboard', 'Good evening, welcome home'],
+  devices:   ['Devices', 'Manage all your smart devices'],
+  security:  ['Security', 'Monitor and control access'],
+  energy:    ['Energy', 'Track your power consumption'],
+  scenes:    ['Scenes & Automations', 'Set the mood instantly'],
+};
+
+function showView(name) {
+  document.querySelectorAll('[id^="view-"]').forEach(v => v.style.display = 'none');
+  document.getElementById('view-' + name).style.display = '';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItems = document.querySelectorAll('.nav-item');
+  const idx = ['dashboard','devices','security','energy','scenes'].indexOf(name);
+  if (idx >= 0) navItems[idx]?.classList.add('active');
+  document.getElementById('view-title').textContent = viewTitles[name][0];
+  document.getElementById('view-sub').textContent = viewTitles[name][1];
+
+  if (name === 'devices') renderAllDevices();
+  if (name === 'security') renderSensors();
+  if (name === 'energy') renderEnergy();
+  if (name === 'scenes') renderScenes();
+}
+
+// ── THERMOSTAT ─────────────────────────────────────────────────────────────
+function adjustTemp(delta) {
+  state.thermostatTarget = Math.max(10, Math.min(30, state.thermostatTarget + delta));
+  document.getElementById('thermo-target').textContent = state.thermostatTarget + '°C';
+  updateStats();
+}
+
+function setMode(m) {
+  state.thermostatMode = m;
+  ['heat','cool','off'].forEach(x => document.getElementById('mode-'+x)?.classList.remove('active'));
+  document.getElementById('mode-'+m)?.classList.add('active');
+  const ring = document.getElementById('thermo-ring');
+  const label = document.getElementById('thermo-mode');
+  ring.className = 'thermo-ring' + (m === 'heat' ? ' heating' : m === 'cool' ? ' cooling' : '');
+  label.textContent = m === 'heat' ? 'Heating' : m === 'cool' ? 'Cooling' : 'Off';
+}
+
+// ── ROOMS ──────────────────────────────────────────────────────────────────
+function selectRoom(btn, room) {
+  document.querySelectorAll('.room-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  state.activeRoom = room;
+  renderRoomDevices();
+}
+
+function renderRoomDevices() {
+  const container = document.getElementById('room-devices');
+  const devs = Object.entries(state.devices).filter(([,d]) => d.room === state.activeRoom);
+  container.innerHTML = devs.map(([id,d]) => `
+    <div class="device-tile ${d.on ? 'on' : ''}" id="tile-${id}" onclick="toggleDevice('${id}')">
+      <div class="icon">${d.icon}</div>
+      <div class="label">${d.name}</div>
+      <div class="status">${d.on ? 'On' : 'Off'}</div>
+    </div>
+  `).join('');
+}
+
+// ── ALL DEVICES ────────────────────────────────────────────────────────────
+function renderAllDevices() {
+  const container = document.getElementById('all-devices');
+  container.innerHTML = Object.entries(state.devices).map(([id,d]) => `
+    <div class="device-tile ${d.on ? 'on' : ''}" id="atile-${id}" onclick="toggleDeviceAll('${id}')">
+      <div class="icon">${d.icon}</div>
+      <div class="label">${d.name}</div>
+      <div style="font-size:11px;color:var(--muted)">${d.room}</div>
+      <div class="status">${d.on ? 'On' : 'Off'}</div>
+    </div>
+  `).join('');
+
+  const settings = document.getElementById('device-settings');
+  const lightDevs = Object.entries(state.devices).filter(([,d]) => d.brightness !== null && d.on);
+  settings.innerHTML = lightDevs.length === 0
+    ? '<div style="color:var(--muted);font-size:13px">No dimmable devices are on.</div>'
+    : lightDevs.map(([id,d]) => `
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:14px">${d.icon} ${d.name}</span>
+          <span style="font-size:13px;color:var(--muted)">${d.brightness}%</span>
+        </div>
+        <input type="range" min="0" max="100" value="${d.brightness}"
+          oninput="setBrightness('${id}', this.value)">
+      </div>
+    `).join('');
+}
+
+function toggleDevice(id) {
+  state.devices[id].on = !state.devices[id].on;
+  renderRoomDevices();
+  updateStats();
+}
+
+function toggleDeviceAll(id) {
+  state.devices[id].on = !state.devices[id].on;
+  renderAllDevices();
+  updateStats();
+}
+
+function setBrightness(id, val) {
+  state.devices[id].brightness = parseInt(val);
+}
+
+// ── ALARM ──────────────────────────────────────────────────────────────────
+function toggleAlarm() {
+  state.alarm = !state.alarm;
+  const statusEl = document.getElementById('alarm-status');
+  const labelEl = document.getElementById('alarm-label');
+  const subEl = document.getElementById('alarm-sub');
+  const btnEl = document.getElementById('alarm-btn');
+  if (state.alarm) {
+    statusEl.className = 'security-status armed';
+    labelEl.textContent = 'System Armed';
+    subEl.textContent = 'Motion detection active · All sensors online';
+    btnEl.className = 'arm-btn disarm';
+    btnEl.textContent = 'Disarm';
+  } else {
+    statusEl.className = 'security-status disarmed';
+    labelEl.textContent = 'System Disarmed';
+    subEl.textContent = 'All doors and windows secured';
+    btnEl.className = 'arm-btn arm';
+    btnEl.textContent = 'Arm';
+  }
+  updateStats();
+}
+
+function toggleLock(door, checkbox) {
+  // visual only — in a real app would call API
+  console.log(door, checkbox.checked ? 'locked' : 'unlocked');
+}
+
+// ── SENSORS ───────────────────────────────────────────────────────────────
+function renderSensors() {
+  document.getElementById('sensors').innerHTML = sensors.map(s => `
+    <div class="card" style="border-color:${s.ok ? 'var(--border)' : 'var(--danger)'}">
+      <div style="font-size:28px;margin-bottom:6px">${s.icon}</div>
+      <div style="font-size:13px;font-weight:600">${s.name}</div>
+      <div style="font-size:12px;margin-top:4px;color:${s.ok ? 'var(--ok)' : 'var(--danger)'}">${s.status}</div>
+    </div>
+  `).join('');
+}
+
+// ── ENERGY ────────────────────────────────────────────────────────────────
+function renderEnergy() {
+  document.getElementById('energy-consumers').innerHTML = energyConsumers.map(c => `
+    <div class="energy-bar-wrap">
+      <div class="energy-bar-label">
+        <span>${c.name}</span>
+        <span>${c.watts} W</span>
+      </div>
+      <div class="energy-bar">
+        <div class="energy-bar-fill" style="width:${c.pct}%;background:${c.color}"></div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('room-energy').innerHTML = roomEnergy.map(r => `
+    <div class="energy-bar-wrap">
+      <div class="energy-bar-label">
+        <span>${r.room}</span>
+        <span>${r.kwh} kWh</span>
+      </div>
+      <div class="energy-bar">
+        <div class="energy-bar-fill" style="width:${r.pct}%;background:${r.color}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── SCENES ─────────────────────────────────────────────────────────────────
+function activateScene(id) {
+  state.activeScene = id;
+  const scene = scenes.find(s => s.id === id);
+  if (scene) {
+    Object.entries(scene.devices).forEach(([devId, on]) => {
+      if (state.devices[devId]) state.devices[devId].on = on;
+    });
+  }
+  document.querySelectorAll('.scene-btn[data-scene]').forEach(b => {
+    b.classList.toggle('active', b.dataset.scene === id);
+  });
+  // also update dashboard quick scenes
+  document.querySelectorAll('#view-dashboard .scene-btn').forEach(b => {
+    b.classList.remove('active');
+  });
+  const qBtns = document.querySelectorAll('#view-dashboard .scene-btn');
+  const qMap = ['morning','day','evening','night'];
+  qMap.forEach((s,i) => { if (s === id && qBtns[i]) qBtns[i].classList.add('active'); });
+  updateStats();
+  renderRoomDevices();
+}
+
+function renderScenes() {
+  document.getElementById('scenes-grid').innerHTML = scenes.map(s => `
+    <button class="scene-btn ${s.id === state.activeScene ? 'active' : ''}"
+      data-scene="${s.id}" onclick="activateScene('${s.id}')">
+      <span class="scene-icon">${s.icon}</span>${s.name}
+    </button>
+  `).join('');
+
+  document.getElementById('automations-list').innerHTML = automations.map((a,i) => `
+    <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;background:var(--surface2);margin-bottom:10px">
+      <span style="font-size:26px">${a.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600">${a.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${a.desc}</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" ${a.enabled ? 'checked' : ''} onchange="toggleAutomation(${i},this)">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </label>
+    </div>
+  `).join('');
+}
+
+function toggleAutomation(i, cb) {
+  automations[i].enabled = cb.checked;
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+setMode('heat');
+renderRoomDevices();
+updateStats();
+
+// Animate energy bars after a tiny delay
+setTimeout(() => {
+  document.querySelectorAll('.energy-bar-fill').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0%';
+    setTimeout(() => el.style.width = w, 50);
+  });
+}, 100);
+</script>
+</body>
+</html>
