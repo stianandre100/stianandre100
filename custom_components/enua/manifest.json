@@ -1,0 +1,13 @@
+{
+  "domain": "enua",
+  "name": "Enua Charge",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/stianandre100/enua-home-assistant",
+  "issue_tracker": "https://github.com/stianandre100/enua-home-assistant/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [],
+  "iot_class": "cloud_polling",
+  "homeassistant": "2024.1.0"
+}

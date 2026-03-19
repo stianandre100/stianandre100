@@ -1,0 +1,29 @@
+{
+  "config": {
+    "step": {
+      "pick_implementation": {
+        "title": "Logg inn med Enua"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "vehicle_state": { "name": "Kjøretøystatus" },
+      "l1_current": { "name": "L1 Strøm" },
+      "l2_current": { "name": "L2 Strøm" },
+      "l3_current": { "name": "L3 Strøm" },
+      "l1_voltage": { "name": "L1 Spenning" },
+      "l2_voltage": { "name": "L2 Spenning" },
+      "l3_voltage": { "name": "L3 Spenning" },
+      "energy": { "name": "Energi" },
+      "charger_max_current": { "name": "Lader maks strøm" },
+      "vehicle_max_current": { "name": "Kjøretøy maks strøm" }
+    },
+    "switch": {
+      "charging": { "name": "Lader" }
+    },
+    "number": {
+      "max_current": { "name": "Maks strøm" }
+    }
+  }
+}
