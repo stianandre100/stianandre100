@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "Gym & Training Expert": {
+      "source": "frankxai/claude-skills-library",
+      "sourceType": "github",
+      "computedHash": "0cac4395b59a3419dde7c36a0d2a3dbf2dd1fb340dcc8c4ae13f7fb876fe136d"
+    },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
