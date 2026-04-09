@@ -1,147 +1,114 @@
 #!/usr/bin/env python3
-"""Search script that queries a domain and returns results.
+# -*- coding: utf-8 -*-
+"""
+UI/UX Pro Max Search - BM25 search engine for UI/UX style guides
+Usage: python search.py "<query>" [--domain <domain>] [--stack <stack>] [--max-results 3]
+       python search.py "<query>" --design-system [-p "Project Name"]
+       python search.py "<query>" --design-system --persist [-p "Project Name"] [--page "dashboard"]
 
-Usage:
-    python3 search.py "<query>" --domain <domain> [-n <max_results>]
+Domains: style, prompt, color, chart, landing, product, ux, typography, google-fonts
+Stacks: react, nextjs, vue, svelte, astro, swiftui, react-native, flutter, nuxtjs, nuxt-ui, html-tailwind, shadcn, jetpack-compose, threejs
 
-Examples:
-    python3 search.py "smart home" --domain example.com
-    python3 search.py "dashboard" --domain example.com -n 5
+Persistence (Master + Overrides pattern):
+  --persist    Save design system to design-system/MASTER.md
+  --page       Also create a page-specific override file in design-system/pages/
 """
 
 import argparse
-import json
 import sys
-import urllib.error
-import urllib.parse
-import urllib.request
+import io
+from core import CSV_CONFIG, AVAILABLE_STACKS, MAX_RESULTS, search, search_stack
+from design_system import generate_design_system, persist_design_system
+
+# Force UTF-8 for stdout/stderr to handle emojis on Windows (cp1252 default)
+if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+if sys.stderr.encoding and sys.stderr.encoding.lower() != 'utf-8':
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 
-def build_search_url(query: str, domain: str, max_results: int) -> str:
-    params = urllib.parse.urlencode({
-        "q": f"site:{domain} {query}",
-        "num": max_results,
-    })
-    return f"https://www.googleapis.com/customsearch/v1?{params}"
+def format_output(result):
+    """Format results for Claude consumption (token-optimized)"""
+    if "error" in result:
+        return f"Error: {result['error']}"
 
+    output = []
+    if result.get("stack"):
+        output.append(f"## UI Pro Max Stack Guidelines")
+        output.append(f"**Stack:** {result['stack']} | **Query:** {result['query']}")
+    else:
+        output.append(f"## UI Pro Max Search Results")
+        output.append(f"**Domain:** {result['domain']} | **Query:** {result['query']}")
+    output.append(f"**Source:** {result['file']} | **Found:** {result['count']} results\n")
 
-def search_duckduckgo(query: str, domain: str, max_results: int) -> list[dict]:
-    """Search using DuckDuckGo Instant Answer API as a free fallback."""
-    params = urllib.parse.urlencode({
-        "q": f"site:{domain} {query}",
-        "format": "json",
-        "no_redirect": 1,
-    })
-    url = f"https://api.duckduckgo.com/?{params}"
+    for i, row in enumerate(result['results'], 1):
+        output.append(f"### Result {i}")
+        for key, value in row.items():
+            value_str = str(value)
+            if len(value_str) > 300:
+                value_str = value_str[:300] + "..."
+            output.append(f"- **{key}:** {value_str}")
+        output.append("")
 
-    req = urllib.request.Request(url, headers={"User-Agent": "SearchScript/1.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode())
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
-        print(f"Error: request failed — {exc}", file=sys.stderr)
-        sys.exit(1)
-
-    results = []
-    for topic in data.get("RelatedTopics", []):
-        if "Text" in topic and "FirstURL" in topic:
-            results.append({
-                "title": topic["Text"][:120],
-                "url": topic["FirstURL"],
-            })
-        # Nested subtopics
-        for sub in topic.get("Topics", []):
-            if "Text" in sub and "FirstURL" in sub:
-                results.append({
-                    "title": sub["Text"][:120],
-                    "url": sub["FirstURL"],
-                })
-        if len(results) >= max_results:
-            break
-
-    # Also include the Abstract if available
-    if data.get("AbstractURL"):
-        results.insert(0, {
-            "title": data.get("Heading", "Abstract"),
-            "url": data["AbstractURL"],
-            "snippet": data.get("AbstractText", ""),
-        })
-
-    return results[:max_results]
-
-
-def search_html_scrape(query: str, domain: str, max_results: int) -> list[dict]:
-    """Scrape DuckDuckGo HTML results as a more reliable fallback."""
-    params = urllib.parse.urlencode({"q": f"site:{domain} {query}"})
-    url = f"https://html.duckduckgo.com/html/?{params}"
-
-    req = urllib.request.Request(url, headers={"User-Agent": "SearchScript/1.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            html = resp.read().decode("utf-8", errors="replace")
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
-        print(f"Error: request failed — {exc}", file=sys.stderr)
-        sys.exit(1)
-
-    results = []
-    # Simple extraction of result links from DuckDuckGo HTML
-    import re
-
-    for match in re.finditer(
-        r'<a rel="nofollow" class="result__a" href="([^"]+)"[^>]*>(.*?)</a>',
-        html,
-    ):
-        href = match.group(1)
-        title = re.sub(r"<[^>]+>", "", match.group(2)).strip()
-        if href and title:
-            results.append({"title": title, "url": href})
-        if len(results) >= max_results:
-            break
-
-    return results
-
-
-def print_results(results: list[dict], query: str, domain: str) -> None:
-    if not results:
-        print(f'No results found for "{query}" on {domain}')
-        return
-
-    print(f'\nSearch results for "{query}" on {domain}:')
-    print("=" * 60)
-    for i, r in enumerate(results, 1):
-        print(f"\n{i}. {r['title']}")
-        print(f"   {r['url']}")
-        if r.get("snippet"):
-            print(f"   {r['snippet'][:200]}")
-    print()
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Search a specific domain for relevant results.",
-    )
-    parser.add_argument("query", help="Search query string")
-    parser.add_argument("--domain", required=True, help="Domain to search within")
-    parser.add_argument(
-        "-n",
-        "--max-results",
-        type=int,
-        default=10,
-        help="Maximum number of results to return (default: 10)",
-    )
-
-    args = parser.parse_args()
-
-    if args.max_results < 1:
-        parser.error("max results must be at least 1")
-
-    # Try HTML scrape first (more reliable), fall back to instant answer API
-    results = search_html_scrape(args.query, args.domain, args.max_results)
-    if not results:
-        results = search_duckduckgo(args.query, args.domain, args.max_results)
-
-    print_results(results, args.query, args.domain)
+    return "\n".join(output)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="UI Pro Max Search")
+    parser.add_argument("query", help="Search query")
+    parser.add_argument("--domain", "-d", choices=list(CSV_CONFIG.keys()), help="Search domain")
+    parser.add_argument("--stack", "-s", choices=AVAILABLE_STACKS, help=f"Stack-specific search. Available: {', '.join(AVAILABLE_STACKS)}")
+    parser.add_argument("--max-results", "-n", type=int, default=MAX_RESULTS, help="Max results (default: 3)")
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
+    # Design system generation
+    parser.add_argument("--design-system", "-ds", action="store_true", help="Generate complete design system recommendation")
+    parser.add_argument("--project-name", "-p", type=str, default=None, help="Project name for design system output")
+    parser.add_argument("--format", "-f", choices=["ascii", "markdown"], default="ascii", help="Output format for design system")
+    # Persistence (Master + Overrides pattern)
+    parser.add_argument("--persist", action="store_true", help="Save design system to design-system/MASTER.md (creates hierarchical structure)")
+    parser.add_argument("--page", type=str, default=None, help="Create page-specific override file in design-system/pages/")
+    parser.add_argument("--output-dir", "-o", type=str, default=None, help="Output directory for persisted files (default: current directory)")
+
+    args = parser.parse_args()
+
+    # Design system takes priority
+    if args.design_system:
+        result = generate_design_system(
+            args.query, 
+            args.project_name, 
+            args.format,
+            persist=args.persist,
+            page=args.page,
+            output_dir=args.output_dir
+        )
+        print(result)
+        
+        # Print persistence confirmation
+        if args.persist:
+            project_slug = args.project_name.lower().replace(' ', '-') if args.project_name else "default"
+            print("\n" + "=" * 60)
+            print(f"✅ Design system persisted to design-system/{project_slug}/")
+            print(f"   📄 design-system/{project_slug}/MASTER.md (Global Source of Truth)")
+            if args.page:
+                page_filename = args.page.lower().replace(' ', '-')
+                print(f"   📄 design-system/{project_slug}/pages/{page_filename}.md (Page Overrides)")
+            print("")
+            print(f"📖 Usage: When building a page, check design-system/{project_slug}/pages/[page].md first.")
+            print(f"   If exists, its rules override MASTER.md. Otherwise, use MASTER.md.")
+            print("=" * 60)
+    # Stack search
+    elif args.stack:
+        result = search_stack(args.query, args.stack, args.max_results)
+        if args.json:
+            import json
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+        else:
+            print(format_output(result))
+    # Domain search
+    else:
+        result = search(args.query, args.domain, args.max_results)
+        if args.json:
+            import json
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+        else:
+            print(format_output(result))
