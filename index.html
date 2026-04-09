@@ -342,6 +342,204 @@
       border-radius: 50%;
     }
 
+    /* VIEW TRANSITIONS */
+    [id^="view-"] {
+      animation: viewFadeIn .3s ease;
+    }
+    @keyframes viewFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RIPPLE EFFECT */
+    .ripple-wrap { position: relative; overflow: hidden; }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      transform: scale(0);
+      animation: rippleAnim .5s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ENHANCED HOVER STATES */
+    .device-tile {
+      transition: border-color .2s, background .2s, transform .15s, box-shadow .2s;
+    }
+    .device-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    }
+    .device-tile:active { transform: scale(.97); }
+    .scene-btn {
+      transition: border-color .2s, background .2s, transform .12s;
+    }
+    .scene-btn:hover { transform: translateY(-1px); }
+    .scene-btn:active { transform: scale(.96); }
+    .card {
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .card:hover {
+      border-color: var(--surface2);
+      box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    }
+    .nav-item {
+      transition: background .2s, transform .15s;
+    }
+    .nav-item:hover { transform: scale(1.08); }
+    .nav-item:active { transform: scale(.95); }
+
+    /* TOAST NOTIFICATIONS */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 240px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      animation: toastIn .3s ease;
+      transition: opacity .25s, transform .25s;
+    }
+    .toast.removing {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    .toast-icon { font-size: 18px; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .toast.toast-success { border-left: 3px solid var(--ok); }
+    .toast.toast-warning { border-left: 3px solid var(--warn); }
+    .toast.toast-info    { border-left: 3px solid var(--accent); }
+    .toast.toast-error   { border-left: 3px solid var(--danger); }
+
+    /* THEME TOGGLE */
+    .theme-toggle {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--border);
+      transition: background .2s, transform .15s;
+      margin-top: auto;
+      margin-bottom: 8px;
+    }
+    .theme-toggle:hover { background: var(--surface2); transform: scale(1.08); }
+
+    /* LIGHT THEME */
+    html.light {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface2: #e2e8f0;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+    html.light .sidebar { background: #ffffff; }
+    html.light .toast { background: #ffffff; box-shadow: 0 8px 32px rgba(0,0,0,.1); }
+
+    /* DEVICE SEARCH BAR */
+    .device-search {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      margin-bottom: 16px;
+    }
+    .device-search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+    }
+    .device-search::placeholder { color: var(--muted); }
+    .search-wrap {
+      position: relative;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+      color: var(--muted);
+    }
+
+    /* KEYBOARD SHORTCUT HINTS */
+    .kbd-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+    .kbd-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .kbd-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      min-width: 340px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .kbd-panel h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .kbd-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    .kbd-key {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      min-width: 28px;
+      text-align: center;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 900px) {
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
@@ -351,6 +549,8 @@
       .main { padding: 16px; margin-left: 60px; }
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       .sidebar { width: 60px; }
+      .toast-container { left: 16px; right: 16px; bottom: 16px; }
+      .toast { min-width: auto; }
     }
   </style>
 </head>
@@ -374,7 +574,30 @@
   <div class="nav-item" onclick="showView('scenes')">
     🎭<span class="tooltip">Scenes</span>
   </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme (T)">🌙</button>
+  <div class="nav-item" onclick="showKbd()" style="margin-bottom:0">
+    ⌨️<span class="tooltip">Shortcuts</span>
+  </div>
 </nav>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- KEYBOARD SHORTCUTS OVERLAY -->
+<div class="kbd-overlay" id="kbd-overlay" onclick="hideKbd()">
+  <div class="kbd-panel" onclick="event.stopPropagation()">
+    <h3>⌨️ Keyboard Shortcuts</h3>
+    <div class="kbd-row"><span>Dashboard</span><span class="kbd-key">1</span></div>
+    <div class="kbd-row"><span>Devices</span><span class="kbd-key">2</span></div>
+    <div class="kbd-row"><span>Security</span><span class="kbd-key">3</span></div>
+    <div class="kbd-row"><span>Energy</span><span class="kbd-key">4</span></div>
+    <div class="kbd-row"><span>Scenes</span><span class="kbd-key">5</span></div>
+    <div class="kbd-row"><span>Toggle theme</span><span class="kbd-key">T</span></div>
+    <div class="kbd-row"><span>Search devices</span><span class="kbd-key">/</span></div>
+    <div class="kbd-row"><span>Show shortcuts</span><span class="kbd-key">?</span></div>
+    <div class="kbd-row"><span style="color:var(--muted);font-size:12px">Press Esc to close</span></div>
+  </div>
+</div>
 
 <!-- MAIN -->
 <div class="main">
@@ -477,6 +700,10 @@
   <div id="view-devices" style="display:none">
     <div class="card" style="margin-bottom:20px">
       <div class="card-title">All Devices</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="device-search" id="device-search" placeholder="Search devices… ( / )" oninput="filterDevices(this.value)">
+      </div>
       <div class="grid grid-4" id="all-devices"></div>
     </div>
     <div class="card">
@@ -898,6 +1125,184 @@ function toggleAutomation(i, cb) {
   automations[i].enabled = cb.checked;
 }
 
+// ── UI/UX PLUGIN ──────────────────────────────────────────────────────────
+
+// Toast notification system
+function showToast(message, type = 'info', duration = 2500) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  const icons = { success: '✅', warning: '⚠️', info: 'ℹ️', error: '❌' };
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span class="toast-icon">${icons[type] || icons.info}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('removing');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// Ripple effect on clickable elements
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('.device-tile, .scene-btn, .nav-item, .thermo-btn, .arm-btn, .room-tab');
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+  target.style.position = target.style.position || 'relative';
+  target.style.overflow = 'hidden';
+  target.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 500);
+});
+
+// Theme toggle with localStorage persistence
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.querySelector('.theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('ha-theme', isLight ? 'light' : 'dark');
+  showToast(isLight ? 'Light theme enabled' : 'Dark theme enabled', 'info', 1500);
+}
+
+// Restore saved theme on load
+(function restoreTheme() {
+  const saved = localStorage.getItem('ha-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  // Ignore when typing in inputs
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    if (e.key === 'Escape') e.target.blur();
+    return;
+  }
+  const views = ['dashboard', 'devices', 'security', 'energy', 'scenes'];
+  if (e.key >= '1' && e.key <= '5') {
+    e.preventDefault();
+    showView(views[parseInt(e.key) - 1]);
+    showToast(`Switched to ${views[parseInt(e.key) - 1]}`, 'info', 1200);
+  }
+  if (e.key === 't' || e.key === 'T') {
+    e.preventDefault();
+    toggleTheme();
+  }
+  if (e.key === '/') {
+    e.preventDefault();
+    showView('devices');
+    setTimeout(() => document.getElementById('device-search')?.focus(), 100);
+  }
+  if (e.key === '?' && !e.shiftKey) {
+    showKbd();
+  }
+  if (e.key === 'Escape') {
+    hideKbd();
+  }
+});
+
+// Keyboard shortcut overlay
+function showKbd() {
+  document.getElementById('kbd-overlay').classList.add('visible');
+}
+function hideKbd() {
+  document.getElementById('kbd-overlay').classList.remove('visible');
+}
+
+// Device search/filter
+let deviceSearchQuery = '';
+function filterDevices(query) {
+  deviceSearchQuery = query.toLowerCase().trim();
+  renderAllDevices();
+}
+
+// ── ENHANCED ACTION FEEDBACK ──────────────────────────────────────────────
+
+// Patch existing functions to add toast notifications
+const _origToggleDevice = toggleDevice;
+toggleDevice = function(id) {
+  _origToggleDevice(id);
+  const d = state.devices[id];
+  showToast(`${d.icon} ${d.name} turned ${d.on ? 'on' : 'off'}`, d.on ? 'success' : 'info', 1800);
+};
+
+const _origToggleDeviceAll = toggleDeviceAll;
+toggleDeviceAll = function(id) {
+  _origToggleDeviceAll(id);
+  const d = state.devices[id];
+  showToast(`${d.icon} ${d.name} turned ${d.on ? 'on' : 'off'}`, d.on ? 'success' : 'info', 1800);
+};
+
+const _origToggleAlarm = toggleAlarm;
+toggleAlarm = function() {
+  _origToggleAlarm();
+  showToast(state.alarm ? '🔒 System armed' : '🔓 System disarmed', state.alarm ? 'warning' : 'success', 2000);
+};
+
+const _origActivateScene = activateScene;
+activateScene = function(id) {
+  _origActivateScene(id);
+  const scene = scenes.find(s => s.id === id);
+  showToast(`${scene?.icon || '🎭'} ${scene?.name || id} scene activated`, 'success', 2000);
+};
+
+const _origSetMode = setMode;
+setMode = function(m) {
+  _origSetMode(m);
+  const labels = { heat: '🔥 Heating mode', cool: '❄️ Cooling mode', off: '⏹ HVAC off' };
+  showToast(labels[m] || m, 'info', 1500);
+};
+
+const _origAdjustTemp = adjustTemp;
+adjustTemp = function(delta) {
+  _origAdjustTemp(delta);
+  showToast(`🌡️ Target: ${state.thermostatTarget}°C`, 'info', 1200);
+};
+
+// Patch renderAllDevices to support search filtering
+const _origRenderAllDevices = renderAllDevices;
+renderAllDevices = function() {
+  const container = document.getElementById('all-devices');
+  let entries = Object.entries(state.devices);
+  if (deviceSearchQuery) {
+    entries = entries.filter(([id, d]) =>
+      d.name.toLowerCase().includes(deviceSearchQuery) ||
+      d.room.toLowerCase().includes(deviceSearchQuery)
+    );
+  }
+  container.innerHTML = entries.map(([id,d]) => `
+    <div class="device-tile ${d.on ? 'on' : ''}" id="atile-${id}" onclick="toggleDeviceAll('${id}')">
+      <div class="icon">${d.icon}</div>
+      <div class="label">${d.name}</div>
+      <div style="font-size:11px;color:var(--muted)">${d.room}</div>
+      <div class="status">${d.on ? 'On' : 'Off'}</div>
+    </div>
+  `).join('');
+
+  if (deviceSearchQuery && entries.length === 0) {
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:24px;font-size:14px">No devices match your search.</div>';
+  }
+
+  const settings = document.getElementById('device-settings');
+  const lightDevs = Object.entries(state.devices).filter(([,d]) => d.brightness !== null && d.on);
+  settings.innerHTML = lightDevs.length === 0
+    ? '<div style="color:var(--muted);font-size:13px">No dimmable devices are on.</div>'
+    : lightDevs.map(([id,d]) => `
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:14px">${d.icon} ${d.name}</span>
+          <span style="font-size:13px;color:var(--muted)">${d.brightness}%</span>
+        </div>
+        <input type="range" min="0" max="100" value="${d.brightness}"
+          oninput="setBrightness('${id}', this.value)">
+      </div>
+    `).join('');
+};
+
 // ── INIT ───────────────────────────────────────────────────────────────────
 setMode('heat');
 renderRoomDevices();
@@ -911,6 +1316,9 @@ setTimeout(() => {
     setTimeout(() => el.style.width = w, 50);
   });
 }, 100);
+
+// Welcome toast on load
+setTimeout(() => showToast('🏠 Welcome home! Press ? for keyboard shortcuts.', 'info', 3500), 500);
 </script>
 </body>
 </html>
