@@ -1,10 +1,25 @@
 {
   "version": 1,
   "skills": {
+    "backtest-expert": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "4dc34b8c2828d826ed417b74cd63fe12349a30bab1064620d06c96e3e24a2e80"
+    },
     "brand-guidelines": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "4aa754f4f7fc54ac3e7f6e2fb55c0e2fb14b7d70da077b41a86bd1889ff9094c"
+    },
+    "breadth-chart-analyst": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "17ca1c879e4053fad4a0db4c30bba54711d0666d70fe1dc63640010e67f3812c"
+    },
+    "canslim-screener": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "38fc9741579a4e243c05114ad8787d8b083791b7ed5e507c81a44ec7c727a3c5"
     },
     "ckm:banner-design": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
@@ -36,20 +51,260 @@
       "sourceType": "github",
       "computedHash": "9ae38e4e201f338b6150e462b98a2db0f2ae7c180c77e8cfb1d33eba9d33bf33"
     },
+    "data-quality-checker": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "8a620a322f4b7bb4f332c0efc9763fe8f68a46d0191ef2d53af718afb6e80068"
+    },
+    "dividend-growth-pullback-screener": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "53158765d9fb68eb1416a0f15183434f208973dbe8bb94f87d1468c7ef637ea8"
+    },
+    "downtrend-duration-analyzer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "93ef7e320ebcb2d7a74a95e68a5a21782b54b5f8f344edad32c46013f1bff0aa"
+    },
+    "dual-axis-skill-reviewer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "2f98c983f0c8930410a47d98a6e508c1f3361c9541b03ee0129401acff88dc1c"
+    },
+    "earnings-calendar": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "12164635fb624430a036a2abd9db63a0e684eae14b3f56d3f5f92ab2fb635e61"
+    },
+    "earnings-trade-analyzer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "88db39d019bf2c06695be749305977d4beebd789b0fd1583a1267a4ac4f1230a"
+    },
+    "economic-calendar-fetcher": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "8b5978eab9d733f6bde617e34b2324b08e0bbf99b4a0aed00dc2678a7d84ae3c"
+    },
+    "edge-candidate-agent": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "68b5678a9cd601d6629b63d3eb126a2ebba756ecee0b523e1466f8295e61a02b"
+    },
+    "edge-concept-synthesizer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "5f2631151b3c9354d820f9f071dd19e5efe7940d53e7e581c379410fd2be73b9"
+    },
+    "edge-hint-extractor": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "d04e5e6f65494d24c4c713dac6ba4b87e2afe085b81bc1ee24d0215f8ca2435b"
+    },
+    "edge-pipeline-orchestrator": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "f69f86de715f39a48ec1295bfa96b35b9ed3484fe5d6eadd9b22922966a51097"
+    },
+    "edge-signal-aggregator": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "71ff5c6f0d119eb3fce636047bc74d88c8768d1c727440a1725eda701d1262f6"
+    },
+    "edge-strategy-designer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "f76b60883080cafcc70034a291accfe73047f1c607fe570a9fb37b8997d88462"
+    },
+    "edge-strategy-reviewer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "6294b6cb45258531db06960b35127411ba30c871e3082789f6851ec9d3d21503"
+    },
+    "exposure-coach": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "00303892e97ab199044949455834fe404312ef54ee208a3cd2fbd7219a767e3a"
+    },
+    "finviz-screener": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "261ee16e3d148c73f5ba067393990103ce0ae8e0cd8ab282854e28c6289ed88c"
+    },
     "frontend-design": {
       "source": "anthropics/claude-code",
       "sourceType": "github",
       "computedHash": "e8118284a6365753790d44bb2758a6032b3af27fa84696428d9233f2be0f4e78"
+    },
+    "ftd-detector": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "096a2d48e4e4dc97958d94dea8c522950af378569578066e3b1032373b355c47"
     },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "computedHash": "784f0dbb7403b0f00324bce9a112f715342777a0daee7bbb7385f9c6f0a170ea"
     },
+    "institutional-flow-tracker": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "4c8f33aad1829854f50540019ab541638bbf2f86ed027c6559966f1656986ce0"
+    },
+    "kanchi-dividend-review-monitor": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "4ca9bd8846fa338a8b40471d0a9d0195043ec95cd3a45b0051701b2edac0d23e"
+    },
+    "kanchi-dividend-sop": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "09f3073c57a9e96a9917b582fbe91147a4e57397116bc5a4b4da8bc52eecef39"
+    },
+    "kanchi-dividend-us-tax-accounting": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "0b52e357b62ba101108805dfd727c98a663c8b149843b85133909c5c6983c04e"
+    },
+    "macro-regime-detector": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "f9e669541c9dc4bd6932885c28dc751122894bea01eb17bdef4b999083bfce8c"
+    },
+    "market-breadth-analyzer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "cdddb43033c469d88a2e36872787e589c662da347e97c66908940a4002c3ba1c"
+    },
+    "market-environment-analysis": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "308c1a45f8c3290d709a023b6fa9ac560413e4d6520fbe11722c66d2143431a7"
+    },
+    "market-news-analyst": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "3e61a6a96b874f63223aa787b76878ec02094eaf237bc63c29d500d7d1857ad8"
+    },
+    "market-top-detector": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "1d5fa56c39c73484b650fe44d078fb3d1ae7510fdd6a832da30424fd759ecbe6"
+    },
+    "options-strategy-advisor": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "c9dcb0e2b472ac56746f5e6a0ce492003d1456ad6e49bb4eaef39ef684c74aeb"
+    },
+    "pair-trade-screener": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "f2a46c6d88de9ac437ce8963f56317959d23c37d03b23251355743172d7f9b3a"
+    },
+    "pead-screener": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "3011d9e1248278b11c80a2293dc7908d04039ae7bd74a6fcf2f26e2f2336df57"
+    },
+    "portfolio-manager": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "8c02a42e969f56c66438305a812c14a96815efc452886df5cc0f489286bfd765"
+    },
+    "position-sizer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "06ef12439c97614c945e1bac1a92514dc436f37a3c1bc2a15bb5647cb46330ee"
+    },
+    "scenario-analyzer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "3e5fbcc626c303e72572bf00b8fe01e274dfb07c7161ec74dca5cdbc25453808"
+    },
+    "sector-analyst": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "eccd888363e3d6186c47a4a78823872bd49bf759a5dd0e49853f36a097fed76b"
+    },
+    "signal-postmortem": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "bbe7b1ae698c0e474350e668a565d24bdde3165f393c1d2410291db8b7e5197f"
+    },
+    "skill-designer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "62c031204e9a3966b11f2f3256261b1242277086613aeafaed51a24fa121ecfe"
+    },
+    "skill-idea-miner": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "661864631150d448bea9ea171a805a1304f9b3dfbafb6c9f0cf57050ba6136b6"
+    },
+    "skill-integration-tester": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "069567afed2eff36d9833e21d9158d3a7dc5f8d58a12624e429da7f1d027635e"
+    },
+    "stanley-druckenmiller-investment": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "a8d1415f3c5cb1df5e08662ff857e5a1bb8cf2ab3ae2dd8278cd27fe0f6f870f"
+    },
+    "strategy-pivot-designer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "9cc96a49b8a4386f4be966b6065e7dcc95f8d3728fe8dab4842cddc5346f6332"
+    },
+    "technical-analyst": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "76950bd79b8b6f05f7d56d2e1a87ddfe868e7f12e1780d285482dfbbb0b60ddc"
+    },
+    "theme-detector": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "caec032f19364fec4c0f40ef676ef01cab5b65fea60d19ad65480c1fbeaf6ca4"
+    },
+    "trade-hypothesis-ideator": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "cb61c9609f0f4d0d2f84b91ac7f2c6a23fdbd0984ef5389a94d2d7459b67c591"
+    },
+    "trader-memory-core": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "f27a2c0dab06545d51f22a6eca31f43a9e21dbc195dbfbf7182fe63504750d98"
+    },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",
       "computedHash": "0a413bf988d06481f69bb81df2070741c3ba12dd9f1be2706d57f259c905992d"
+    },
+    "uptrend-analyzer": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "30a050c9cfa21da8afc409c25c842fe9ca48fa15ee82a65e0597673de2e49ace"
+    },
+    "us-market-bubble-detector": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "071c7b34c0d11536c7c44bfd2a7b7ec19b3f0f20a569f7a34cdc29750cd6e782"
+    },
+    "us-stock-analysis": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "e0e8251390c2230bbdd1f3354cd113bcfb0bb736e6f4d6132356676914235df3"
+    },
+    "value-dividend-screener": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "d2748741cc2718cefdd76111bac698ab54c0058b455f2a711d0a94b630fecccc"
+    },
+    "vcp-screener": {
+      "source": "tradermonty/claude-trading-skills",
+      "sourceType": "github",
+      "computedHash": "343965350327a8e05862a7363f3b826b1b224b9d2b4d40f68c19ff212ba457d7"
     },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
