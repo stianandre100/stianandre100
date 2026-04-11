@@ -1,233 +1,115 @@
-// ============================================
-// FLEKKERØY ELEKTRO – SCRIPTS
-// ============================================
+document.addEventListener('DOMContentLoaded',()=>{
 
-document.addEventListener('DOMContentLoaded', () => {
+  // === NAVBAR SCROLL ===
+  const nb=document.getElementById('navbar');
+  window.addEventListener('scroll',()=>nb.classList.toggle('scrolled',scrollY>10));
 
-  // ===== NAVBAR SCROLL =====
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  // === MOBILE MENU ===
+  const hb=document.getElementById('hamburger'),nv=document.getElementById('nav');
+  hb.addEventListener('click',()=>{
+    hb.classList.toggle('open');nv.classList.toggle('open');
+    hb.setAttribute('aria-expanded',nv.classList.contains('open'));
   });
+  nv.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{
+    hb.classList.remove('open');nv.classList.remove('open');hb.setAttribute('aria-expanded','false');
+  }));
 
-  // ===== MOBILE MENU =====
-  const hamburger = document.getElementById('hamburger');
-  const nav = document.getElementById('nav');
+  // === SCROLL REVEAL ===
+  const ro=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ro.unobserve(e.target)}});
+  },{threshold:.12,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 
-  hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('open');
-    nav.classList.toggle('open');
-  });
-
-  // Close menu on link click
-  nav.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-      hamburger.classList.remove('open');
-      nav.classList.remove('open');
+  // === ANIMATED COUNTERS ===
+  const co=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(!e.isIntersecting)return;
+      const el=e.target,t=+el.dataset.target;
+      let c=0;const d=Math.max(1,Math.floor(2000/(t||1)));
+      const iv=setInterval(()=>{c++;el.textContent=c;if(c>=t){clearInterval(iv);el.textContent=t}},d);
+      co.unobserve(el);
     });
-  });
+  },{threshold:.5});
+  document.querySelectorAll('.stat-num').forEach(el=>co.observe(el));
 
-  // ===== SCROLL REVEAL =====
-  const revealElements = document.querySelectorAll('.reveal');
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, {
-    threshold: 0.15,
-    rootMargin: '0px 0px -40px 0px'
-  });
-
-  revealElements.forEach(el => revealObserver.observe(el));
-
-  // ===== CONTACT FORM =====
-  const contactForm = document.getElementById('kontakt-form');
-  contactForm.addEventListener('submit', (e) => {
+  // === CONTACT FORM ===
+  const cf=document.getElementById('kontakt-form');
+  cf.addEventListener('submit',e=>{
     e.preventDefault();
-    const btn = contactForm.querySelector('button[type="submit"]');
-    const originalText = btn.textContent;
-    btn.textContent = 'Sendt! ✓';
-    btn.style.background = '#16a34a';
-    btn.style.borderColor = '#16a34a';
-    btn.style.color = '#fff';
-    btn.disabled = true;
-
-    setTimeout(() => {
-      btn.textContent = originalText;
-      btn.style.background = '';
-      btn.style.borderColor = '';
-      btn.style.color = '';
-      btn.disabled = false;
-      contactForm.reset();
-    }, 3000);
+    const b=cf.querySelector('button[type="submit"]'),ot=b.textContent;
+    b.textContent='Sendt! ✓';b.style.background='#16a34a';b.style.borderColor='#16a34a';b.style.color='#fff';b.disabled=true;
+    setTimeout(()=>{b.textContent=ot;b.style.background='';b.style.borderColor='';b.style.color='';b.disabled=false;cf.reset()},3000);
   });
 
-  // ===== ELBIL-KALKULATOR =====
-  const cars = [
-    { id: 'tesla3',    name: 'Tesla Model 3',        battery: 60,  range: 491,  maxAC: 11,   maxDC: 170, icon: '🚗' },
-    { id: 'teslY',     name: 'Tesla Model Y',        battery: 75,  range: 533,  maxAC: 11,   maxDC: 250, icon: '🚙' },
-    { id: 'vwid4',     name: 'VW ID.4',              battery: 77,  range: 520,  maxAC: 11,   maxDC: 135, icon: '🚙' },
-    { id: 'vwid3',     name: 'VW ID.3',              battery: 58,  range: 426,  maxAC: 11,   maxDC: 120, icon: '🚗' },
-    { id: 'polest2',   name: 'Polestar 2',           battery: 69,  range: 478,  maxAC: 11,   maxDC: 155, icon: '🚗' },
-    { id: 'hyundai',   name: 'Hyundai Ioniq 5',      battery: 77,  range: 481,  maxAC: 11,   maxDC: 220, icon: '🚙' },
-    { id: 'kiaev6',    name: 'Kia EV6',              battery: 77,  range: 528,  maxAC: 11,   maxDC: 233, icon: '🚙' },
-    { id: 'audi',      name: 'Audi Q4 e-tron',       battery: 77,  range: 520,  maxAC: 11,   maxDC: 135, icon: '🚙' },
-    { id: 'bmwix3',    name: 'BMW iX3',              battery: 74,  range: 460,  maxAC: 11,   maxDC: 150, icon: '🚙' },
-    { id: 'volvoex30', name: 'Volvo EX30',           battery: 51,  range: 344,  maxAC: 11,   maxDC: 153, icon: '🚗' },
-    { id: 'skodaenyaq',name: 'Škoda Enyaq',          battery: 77,  range: 535,  maxAC: 11,   maxDC: 135, icon: '🚙' },
-    { id: 'nissan',    name: 'Nissan Leaf',           battery: 40,  range: 270,  maxAC: 6.6,  maxDC: 50,  icon: '🚗' },
+  // === ELBIL KALKULATOR ===
+  const cars=[
+    {id:'t3',n:'Tesla Model 3',b:60,r:491,ac:11,dc:170,i:'🚗'},
+    {id:'ty',n:'Tesla Model Y',b:75,r:533,ac:11,dc:250,i:'🚙'},
+    {id:'id4',n:'VW ID.4',b:77,r:520,ac:11,dc:135,i:'🚙'},
+    {id:'id3',n:'VW ID.3',b:58,r:426,ac:11,dc:120,i:'🚗'},
+    {id:'p2',n:'Polestar 2',b:69,r:478,ac:11,dc:155,i:'🚗'},
+    {id:'i5',n:'Hyundai Ioniq 5',b:77,r:481,ac:11,dc:220,i:'🚙'},
+    {id:'ev6',n:'Kia EV6',b:77,r:528,ac:11,dc:233,i:'🚙'},
+    {id:'aq4',n:'Audi Q4 e-tron',b:77,r:520,ac:11,dc:135,i:'🚙'},
+    {id:'ix3',n:'BMW iX3',b:74,r:460,ac:11,dc:150,i:'🚙'},
+    {id:'ex30',n:'Volvo EX30',b:51,r:344,ac:11,dc:153,i:'🚗'},
+    {id:'eny',n:'Škoda Enyaq',b:77,r:535,ac:11,dc:135,i:'🚙'},
+    {id:'leaf',n:'Nissan Leaf',b:40,r:270,ac:6.6,dc:50,i:'🚗'},
+  ];
+  const chgs=[
+    {id:'sk',n:'Vanlig stikkontakt',p:2.3,t:'AC',i:'🔌',d:'230V / 10A – Nødlading'},
+    {id:'1f16',n:'1-fase 16A ladeboks',p:3.6,t:'AC',i:'🏠',d:'230V / 16A – Enkel hjemmelader'},
+    {id:'1f32',n:'1-fase 32A ladeboks',p:7.4,t:'AC',i:'⚡',d:'230V / 32A – Rask hjemmelader'},
+    {id:'3f16',n:'3-fase 11 kW ladeboks',p:11,t:'AC',i:'🔋',d:'400V / 16A – Anbefalt hjemmelader'},
+    {id:'3f32',n:'3-fase 22 kW ladeboks',p:22,t:'AC',i:'⚡',d:'400V / 32A – Profesjonell'},
+    {id:'dc50',n:'Hurtiglader 50 kW',p:50,t:'DC',i:'🚀',d:'CCS – Offentlig hurtiglader'},
   ];
 
-  const chargers = [
-    { id: 'schuko',  name: 'Vanlig stikkontakt',     power: 2.3,  type: 'AC', icon: '🔌', desc: '230V / 10A – Nødlading' },
-    { id: 'ac16',    name: '1-fase ladeboks',         power: 3.6,  type: 'AC', icon: '🏠', desc: '230V / 16A – Enkel hjemmelader' },
-    { id: 'ac32',    name: '1-fase 32A ladeboks',     power: 7.4,  type: 'AC', icon: '⚡', desc: '230V / 32A – Rask hjemmelader' },
-    { id: 'ac3f',    name: '3-fase ladeboks (11 kW)', power: 11,   type: 'AC', icon: '🔋', desc: '400V / 16A – Anbefalt hjemmelader' },
-    { id: 'ac3f22',  name: '3-fase ladeboks (22 kW)', power: 22,   type: 'AC', icon: '⚡', desc: '400V / 32A – Profesjonell lader' },
-    { id: 'dc50',    name: 'Hurtiglader (50 kW)',     power: 50,   type: 'DC', icon: '🚀', desc: 'CCS – Offentlig hurtiglader' },
-  ];
+  let selCar=null,selChg=null;
+  const cg=document.getElementById('car-grid'),chgG=document.getElementById('charger-grid');
+  const bs2=document.getElementById('btn-s2'),bs3=document.getElementById('btn-s3');
+  const bb1=document.getElementById('btn-b1'),bb2=document.getElementById('btn-b2');
+  const steps=document.querySelectorAll('.cs');
+  const panels={1:document.getElementById('cp1'),2:document.getElementById('cp2'),3:document.getElementById('cp3')};
 
-  let selectedCar = null;
-  let selectedCharger = null;
-
-  const carGrid = document.getElementById('car-grid');
-  const chargerGrid = document.getElementById('charger-grid');
-  const toStep2Btn = document.getElementById('to-step-2');
-  const toStep1Btn = document.getElementById('to-step-1');
-  const toStep3Btn = document.getElementById('to-step-3');
-  const toStep2BackBtn = document.getElementById('to-step-2-back');
-  const calcSteps = document.querySelectorAll('.calc-step');
-  const panels = {
-    1: document.getElementById('calc-step-1'),
-    2: document.getElementById('calc-step-2'),
-    3: document.getElementById('calc-step-3'),
-  };
-
-  // Render cars
-  cars.forEach(car => {
-    const el = document.createElement('div');
-    el.className = 'car-option';
-    el.dataset.id = car.id;
-    el.innerHTML = `
-      <span class="car-option-icon">${car.icon}</span>
-      <div class="car-option-info">
-        <strong>${car.name}</strong>
-        <span>${car.battery} kWh · ${car.range} km</span>
-      </div>
-    `;
-    el.addEventListener('click', () => {
-      carGrid.querySelectorAll('.car-option').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedCar = car;
-      toStep2Btn.disabled = false;
-    });
-    carGrid.appendChild(el);
+  cars.forEach(c=>{
+    const d=document.createElement('div');d.className='car-opt';
+    d.innerHTML=`<span>${c.i}</span><div class="co-info"><strong>${c.n}</strong><span>${c.b} kWh · ${c.r} km</span></div>`;
+    d.addEventListener('click',()=>{cg.querySelectorAll('.car-opt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');selCar=c;bs2.disabled=false});
+    cg.appendChild(d);
+  });
+  chgs.forEach(c=>{
+    const d=document.createElement('div');d.className='chg-opt';
+    d.innerHTML=`<span>${c.i}</span><div class="ch-info"><strong>${c.n}</strong><span>${c.d}</span></div>`;
+    d.addEventListener('click',()=>{chgG.querySelectorAll('.chg-opt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');selChg=c;bs3.disabled=false});
+    chgG.appendChild(d);
   });
 
-  // Render chargers
-  chargers.forEach(charger => {
-    const el = document.createElement('div');
-    el.className = 'charger-option';
-    el.dataset.id = charger.id;
-    el.innerHTML = `
-      <span class="charger-option-icon">${charger.icon}</span>
-      <div class="charger-option-info">
-        <strong>${charger.name}</strong>
-        <span>${charger.desc}</span>
-      </div>
-    `;
-    el.addEventListener('click', () => {
-      chargerGrid.querySelectorAll('.charger-option').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedCharger = charger;
-      toStep3Btn.disabled = false;
-    });
-    chargerGrid.appendChild(el);
-  });
-
-  function goToStep(step) {
-    Object.values(panels).forEach(p => p.classList.add('hidden'));
-    panels[step].classList.remove('hidden');
-
-    calcSteps.forEach(s => {
-      const stepNum = parseInt(s.dataset.step);
-      s.classList.remove('active', 'completed');
-      if (stepNum === step) s.classList.add('active');
-      if (stepNum < step) s.classList.add('completed');
-    });
+  function goStep(s){
+    Object.values(panels).forEach(p=>p.classList.add('hidden'));
+    panels[s].classList.remove('hidden');
+    steps.forEach(st=>{const n=+st.dataset.s;st.classList.remove('active','done');if(n===s)st.classList.add('active');if(n<s)st.classList.add('done')});
   }
+  bs2.addEventListener('click',()=>{if(selCar)goStep(2)});
+  bb1.addEventListener('click',()=>goStep(1));
+  bb2.addEventListener('click',()=>goStep(2));
+  bs3.addEventListener('click',()=>{if(selCar&&selChg){calcResult();goStep(3)}});
 
-  toStep2Btn.addEventListener('click', () => {
-    if (selectedCar) goToStep(2);
-  });
-
-  toStep1Btn.addEventListener('click', () => goToStep(1));
-  toStep2BackBtn.addEventListener('click', () => goToStep(2));
-
-  toStep3Btn.addEventListener('click', () => {
-    if (selectedCar && selectedCharger) {
-      calculateResult();
-      goToStep(3);
-    }
-  });
-
-  function calculateResult() {
-    const car = selectedCar;
-    const charger = selectedCharger;
-
-    // Effective power: min of charger power and car's max for that type
-    let effectivePower;
-    if (charger.type === 'AC') {
-      effectivePower = Math.min(charger.power, car.maxAC);
-    } else {
-      effectivePower = Math.min(charger.power, car.maxDC);
-    }
-
-    // Charging time (0-100%, accounting for ~90% efficiency on AC, ~95% on DC)
-    const efficiency = charger.type === 'AC' ? 0.9 : 0.95;
-    const chargeTimeHours = car.battery / (effectivePower * efficiency);
-    const hours = Math.floor(chargeTimeHours);
-    const minutes = Math.round((chargeTimeHours - hours) * 60);
-
-    // Cost: average Norwegian electricity price ~1.50 NOK/kWh (incl. grid fee)
-    const pricePerKwh = 1.50;
-    const fullChargeCost = (car.battery / efficiency) * pricePerKwh;
-
-    // Range gained per hour
-    const rangePerHour = Math.round(car.range / chargeTimeHours);
-
-    const timeStr = hours > 0 ? `${hours}t ${minutes}min` : `${minutes} min`;
-
-    const resultEl = document.getElementById('calc-result');
-    resultEl.innerHTML = `
-      <div class="result-card highlight">
-        <span class="result-value">${timeStr}</span>
-        <span class="result-label">Ladetid 0–100%</span>
-      </div>
-      <div class="result-card">
-        <span class="result-value">${Math.round(fullChargeCost)} kr</span>
-        <span class="result-label">Kostnad full lading</span>
-      </div>
-      <div class="result-card">
-        <span class="result-value">${effectivePower} kW</span>
-        <span class="result-label">Effektiv ladeeffekt</span>
-      </div>
-      <div class="result-card">
-        <span class="result-value">${rangePerHour} km/t</span>
-        <span class="result-label">Rekkevidde per time</span>
-      </div>
-      <div class="result-summary">
-        <p>
-          Med en <strong>${charger.name}</strong> lader du din
-          <strong>${car.name}</strong> (${car.battery} kWh)
-          fra 0–100% på ca. <strong>${timeStr}</strong>.
-          Det gir deg opptil <strong>${car.range} km</strong> rekkevidde.
-        </p>
-      </div>
-    `;
+  function calcResult(){
+    const c=selCar,ch=selChg;
+    const eff=ch.t==='AC'?Math.min(ch.p,c.ac):Math.min(ch.p,c.dc);
+    const eta=ch.t==='AC'?.9:.95;
+    const hrs=c.b/(eff*eta);
+    const h=Math.floor(hrs),m=Math.round((hrs-h)*60);
+    const cost=(c.b/eta)*1.5;
+    const kmh=Math.round(c.r/hrs);
+    const ts=h>0?`${h}t ${m}min`:`${m} min`;
+    document.getElementById('calc-result').innerHTML=`
+      <div class="res-card hl"><span class="res-val">${ts}</span><span class="res-lbl">Ladetid 0–100%</span></div>
+      <div class="res-card"><span class="res-val">${Math.round(cost)} kr</span><span class="res-lbl">Kostnad full lading</span></div>
+      <div class="res-card"><span class="res-val">${eff} kW</span><span class="res-lbl">Effektiv ladeeffekt</span></div>
+      <div class="res-card"><span class="res-val">${kmh} km/t</span><span class="res-lbl">Rekkevidde per time</span></div>
+      <div class="res-summary">Med en <strong>${ch.n}</strong> lader du din <strong>${c.n}</strong> (${c.b} kWh) fra 0–100% på ca. <strong>${ts}</strong>, som gir opptil <strong>${c.r} km</strong> rekkevidde.</div>`;
   }
 
 });
